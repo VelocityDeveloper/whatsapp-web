@@ -1,0 +1,148 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: 'Poppins', sans-serif;
+}
+.sidebar-chat {
+  max-height: 100vh;
+  overflow-y: auto;
+  padding-top: 58px;
+}
+.chatarea {
+  padding: 10px;
+}
+.card-contact {
+  position:relative;
+  color: #d1d1d1;
+}
+.pic-current {
+  width:90px;
+}
+.card-contact .badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+.frame-chat {
+  background-color: #202C33;
+}
+.search-form {
+  position: absolute;
+  top: 0px;
+  z-index: 99;
+  padding: 10px;
+  background-color: #111B21;
+  width: 100%;
+}
+#qrcode {
+  display: none; /* Showed when qr code received */
+  width: 100%;
+  margin: 10px 0;
+  border: 1px solid #efefef;
+  border-radius: 4px;
+}
+.chat-from,
+.chat-to {
+  color: rgb(191 191 191);
+  padding: 10px 0;
+}
+.chat-from {
+  text-align: left;
+}
+.chat-to {
+  text-align: right;
+}
+.chat-from span,
+.chat-to span {
+  padding: 10px;
+  border-radius: 7px;
+  display: inline-block;
+  max-width:80%;
+  overflow-wrap: anywhere;
+}
+.chat-from span img,
+.chat-to span img {
+
+  max-width:300px;
+}
+.chat-from span {
+  background-color: #202C33;
+}
+.chat-to span {
+  background-color: #172026;
+}
+.chat-header {
+  position:absolute;
+  top:0px;
+  background-color: #202C33;
+  width: 100%;
+  padding: 10px;
+  z-index: 99;
+  color:#ddd;
+}
+ul.logs {
+  max-height: 300px;
+  padding: 15px 15px 15px 30px;
+  margin-top: 5px;
+  border-radius: 4px;
+  overflow-y: hidden;
+  background: #efefef;
+  color: #666;
+  font-size: 14px;
+}
+.list-contact {
+  cursor: pointer;
+}
+ul.logs li:first-child {
+  color: green;
+}
+.frame-chat {
+  height: 100vh;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+}
+.kirim-chat {
+  position: relative;
+}
+.lampiran svg {
+  position: relative;
+  left: -5px;
+  top: -4px;
+}
+.lampiran {
+  position: absolute;
+  color: white;
+  background-color: #2f9b58;
+  padding: 10px;
+  height: 40px;
+  width: 40px;
+  border-radius: 20px;
+  text-align: center;
+  left: 0px;
+  top:-1px;
+}
+.height-100vh {
+  height: 100vh;
+}
+.area-pesan {
+  height: calc(100vh - 133px);
+  overflow-y: auto;
+  background-color: #222;
+  display: flex;
+  flex-direction: column-reverse;
+  top: 75px;
+  position: relative;
+}
+.fixed-chatform {
+    padding:10px;
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+}
+.data-nama {
+  font-size: 14px;
+}
