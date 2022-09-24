@@ -193,40 +193,40 @@ io.on('connection', function (socket) {
                 // To better understanding
                 // Please look at the console what data we get
                 // console.log(media);
-        
+
                 if (media) {
-                // The folder to store: change as you want!
-                // Create if not exists
-                const mediaPath = './public/download/';
-        
-                if (!fs.existsSync(mediaPath)) {
-                    fs.mkdirSync(mediaPath, {recursive: true}, err => {});
-                }
-        
-                // Get the file extension by mime-type
-                const extension = mime.extension(media.mimetype);
-        
-                // Filename: change as you want! 
-                // I will use the time for this example
-                // Why not use media.filename? Because the value is not certain exists
-                const filename = media.filename ? media.filename: new Date().getTime()+ '.' + extension;
-        
-                const fullFilename = mediaPath + filename;
-                socket.emit('getMedia', { key: value.mediaKey, name: filename, ext:extension});
-                // Save to file
-                try {
-                    fs.writeFileSync(fullFilename, media.data, { encoding: 'base64' }); 
-                    // console.log('File downloaded successfully! ', fullFilename);
-                } catch (err) {
-                //   console.log('Failed to save the file:', err);
-                }
+                    // The folder to store: change as you want!
+                    // Create if not exists
+                    const mediaPath = './public/download/';
+
+                    if (!fs.existsSync(mediaPath)) {
+                        fs.mkdirSync(mediaPath, { recursive: true }, err => { });
+                    }
+
+                    // Get the file extension by mime-type
+                    const extension = mime.extension(media.mimetype);
+
+                    // Filename: change as you want! 
+                    // I will use the time for this example
+                    // Why not use media.filename? Because the value is not certain exists
+                    const filename = media.filename ? media.filename : new Date().getTime() + '.' + extension;
+
+                    const fullFilename = mediaPath + filename;
+                    socket.emit('getMedia', { key: value.mediaKey, name: filename, ext: extension });
+                    // Save to file
+                    try {
+                        fs.writeFileSync(fullFilename, media.data, { encoding: 'base64' });
+                        // console.log('File downloaded successfully! ', fullFilename);
+                    } catch (err) {
+                        //   console.log('Failed to save the file:', err);
+                    }
                 }
             });
         }
     });
 
-    socket.on('updateDataContact', async function(msg) {
-        if(typeof client.info?.wid !== 'undefined'){
+    socket.on('updateDataContact', async function (msg) {
+        if (typeof client.info?.wid !== 'undefined') {
             let isChatIn = await contactInit();
             socket.emit('getContact', isChatIn);
             console.log('sinkronkan kontak karena chat masuk');
@@ -237,13 +237,13 @@ io.on('connection', function (socket) {
         }
     });
 
-    socket.on('sentMessage', async function(data){
-        if(typeof client.info?.wid !== 'undefined'){
+    socket.on('sentMessage', async function (data) {
+        if (typeof client.info?.wid !== 'undefined') {
             const number = phoneNumberFormatter(data.nomor);
             const message = data.message;
-        
+
             const isRegisteredNumber = await checkRegisteredNumber(number);
-        
+
             if (!isRegisteredNumber) {
                 socket.emit('log', 'nomor tidak terdaftar');
             }
@@ -254,62 +254,62 @@ io.on('connection', function (socket) {
                 socket.emit('getChatByNumber', response);
                 if (response.hasMedia) {
                     response.downloadMedia().then(media => {
-    
+
                         // To better understanding
                         // Please look at the console what data we get
                         // console.log(media);
-                
+
                         if (media) {
-                        // The folder to store: change as you want!
-                        // Create if not exists
-                        const mediaPath = './public/download/';
-                
-                        if (!fs.existsSync(mediaPath)) {
-                            fs.mkdirSync(mediaPath, {recursive: true}, err => {});
-                        }
-                
-                        // Get the file extension by mime-type
-                        const extension = mime.extension(media.mimetype);
-                
-                        // Filename: change as you want! 
-                        // I will use the time for this example
-                        // Why not use media.filename? Because the value is not certain exists
-                        const filename = media.filename ? media.filename: new Date().getTime()+ '.' + extension;
-                
-                        const fullFilename = mediaPath + filename;
-                        socket.emit('getMedia', { key: value.mediaKey, name: filename, ext:extension});
-                        // Save to file
-                        try {
-                            fs.writeFileSync(fullFilename, media.data, { encoding: 'base64' }); 
-                            // console.log('File downloaded successfully! ', fullFilename);
-                        } catch (err) {
-                        //   console.log('Failed to save the file:', err);
-                        }
+                            // The folder to store: change as you want!
+                            // Create if not exists
+                            const mediaPath = './public/download/';
+
+                            if (!fs.existsSync(mediaPath)) {
+                                fs.mkdirSync(mediaPath, { recursive: true }, err => { });
+                            }
+
+                            // Get the file extension by mime-type
+                            const extension = mime.extension(media.mimetype);
+
+                            // Filename: change as you want! 
+                            // I will use the time for this example
+                            // Why not use media.filename? Because the value is not certain exists
+                            const filename = media.filename ? media.filename : new Date().getTime() + '.' + extension;
+
+                            const fullFilename = mediaPath + filename;
+                            socket.emit('getMedia', { key: value.mediaKey, name: filename, ext: extension });
+                            // Save to file
+                            try {
+                                fs.writeFileSync(fullFilename, media.data, { encoding: 'base64' });
+                                // console.log('File downloaded successfully! ', fullFilename);
+                            } catch (err) {
+                                //   console.log('Failed to save the file:', err);
+                            }
                         }
                     });
                 }
-                socket.emit('sentMessageSuccess', data.nomor);  
+                socket.emit('sentMessageSuccess', data.nomor);
             }).catch(err => {
                 socket.emit('log', err);
             });
         }
     });
 
-    socket.on('reqPicUrl', async function(data){
+    socket.on('reqPicUrl', async function (data) {
         // socket.emit('log', client);  
-        if(typeof client.info?.wid !== 'undefined'){
+        if (typeof client.info?.wid !== 'undefined') {
             let pic = await client.getProfilePicUrl(data);
-            socket.emit('getPicUrl', {data:data, url:pic});  
+            socket.emit('getPicUrl', { data: data, url: pic });
         }
     });
-   
-    socket.on('getchatbyid', async function(msg) {
-        if(typeof client.info?.wid !== 'undefined'){
+
+    socket.on('getchatbyid', async function (msg) {
+        if (typeof client.info?.wid !== 'undefined') {
             const number = phoneNumberFormatter(msg);
-            
+
             const chat = await client.getChatById(number);
-            
-            chat.fetchMessages({limit:1000}).then(messages => {
+
+            chat.fetchMessages({ limit: 1000 }).then(messages => {
                 // socket.emit('log', 'getchatbyid diterima server');    
                 // console.log('mendapatkan chat dari nomor'+number);
                 messages.forEach(messages => {
@@ -317,37 +317,37 @@ io.on('connection', function (socket) {
                     socket.emit('getChatByNumber', messages);
                     if (value.hasMedia) {
                         value.downloadMedia().then(media => {
-    
+
                             // To better understanding
                             // Please look at the console what data we get
                             // console.log(media);
-                    
+
                             if (media) {
-                            // The folder to store: change as you want!
-                            // Create if not exists
-                            const mediaPath = './public/download/';
-                    
-                            if (!fs.existsSync(mediaPath)) {
-                                fs.mkdirSync(mediaPath, {recursive: true}, err => {});
-                            }
-                    
-                            // Get the file extension by mime-type
-                            const extension = mime.extension(media.mimetype);
-                    
-                            // Filename: change as you want! 
-                            // I will use the time for this example
-                            // Why not use media.filename? Because the value is not certain exists
-                            const filename = media.filename ? media.filename: new Date().getTime()+ '.' + extension;
-                    
-                            const fullFilename = mediaPath + filename;
-                            socket.emit('getMedia', { key: value.mediaKey, name: filename, ext:extension});
-                            // Save to file
-                            try {
-                                fs.writeFileSync(fullFilename, media.data, { encoding: 'base64' }); 
-                                // console.log('File downloaded successfully! ', fullFilename);
-                            } catch (err) {
-                            //   console.log('Failed to save the file:', err);
-                            }
+                                // The folder to store: change as you want!
+                                // Create if not exists
+                                const mediaPath = './public/download/';
+
+                                if (!fs.existsSync(mediaPath)) {
+                                    fs.mkdirSync(mediaPath, { recursive: true }, err => { });
+                                }
+
+                                // Get the file extension by mime-type
+                                const extension = mime.extension(media.mimetype);
+
+                                // Filename: change as you want! 
+                                // I will use the time for this example
+                                // Why not use media.filename? Because the value is not certain exists
+                                const filename = media.filename ? media.filename : new Date().getTime() + '.' + extension;
+
+                                const fullFilename = mediaPath + filename;
+                                socket.emit('getMedia', { key: value.mediaKey, name: filename, ext: extension });
+                                // Save to file
+                                try {
+                                    fs.writeFileSync(fullFilename, media.data, { encoding: 'base64' });
+                                    // console.log('File downloaded successfully! ', fullFilename);
+                                } catch (err) {
+                                    //   console.log('Failed to save the file:', err);
+                                }
                             }
                         });
                     }
@@ -361,25 +361,25 @@ const contactInit = async function () {
     console.log('mendapatkan list chat');
     const allChats = await client.getChats();
     const obj = [];
-    
+
     // console.log(allChats[0]);
-    for (var i = 0, l = allChats.length; i < l; i++) {
-        if(allChats[i]?.id?.user.includes("-") == false){
+    for (var i = 0, l = allChats.length;i < l;i++) {
+        if (allChats[i]?.id?.user.includes("-") == false) {
 
             // console.log(pic);
             obj.push({
-                'data':{
-                    'name' : allChats[i]?.name,
-                    'id' : allChats[i]?.id?._serialized,
-                    'nomor' : allChats[i]?.id?.user,
-                    'unreadCount' :allChats[i]?.unreadCount,
-                    'timestamp':allChats[i]?.timestamp
+                'data': {
+                    'name': allChats[i]?.name,
+                    'id': allChats[i]?.id?._serialized,
+                    'nomor': allChats[i]?.id?.user,
+                    'unreadCount': allChats[i]?.unreadCount,
+                    'timestamp': allChats[i]?.timestamp
                 }
             });
         }
     }
     return obj;
-    
+
 }
 const checkRegisteredNumber = async function (number) {
     const isRegistered = await client.isRegisteredUser(number);
