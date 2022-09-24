@@ -108,12 +108,6 @@
         };
 
         Scrollbar.init(document.querySelector('.area-kontak'));
-        // Scrollbar.init(document.querySelector('.area-pesan'),options);
-        // const chatScrollbar = Scrollbar.init(document.querySelector('.area-pesan'), {
-        // damping: 0.2,
-        // alwaysShowTracks : true
-        // });
-        // Scrollbar.init(document.querySelector('.fixed-chatform'))
 
         (function ($) {
             $(document).ready(function () {
@@ -162,7 +156,6 @@
                     $('.current-name').html(nama);
                     $('.chatarea').html('');
                     socket.emit('reqPicUrl', id);
-
                 });
 
                 $(document).on("keyup", ".search-form input", function () {
@@ -292,12 +285,6 @@
                         html += '</span></div>';
                         $(".chatarea").append(html);
                     }
-
-                    // setTimeout(function() {
-                    //     let tinggiChat = $('.chatarea').height();
-                    //     chatScrollbar.scrollTo(0, tinggiChat, 0, {
-                    //     });
-                    // }, 1000);
                 });
 
                 socket.on('qr', function (src) {
