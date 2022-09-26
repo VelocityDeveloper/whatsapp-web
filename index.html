@@ -210,7 +210,7 @@
                     const img = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
                     const audio = ['ogg', 'mp3', 'oga'];
                     const video = ['mp4'];
-                    console.log(msg);
+                    // console.log(msg);
                     if (img.includes(msg.ext)) {
                         $('[data-media="' + msg.key + '"]').html('<img src="/download/' + msg.name + '" alt="">');
                     } else if (video.includes(msg.ext)) {

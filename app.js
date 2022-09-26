@@ -33,7 +33,6 @@ app.use(express.urlencoded({
     extended: true
 }));
 
-
 // login mania
 // Middlewares
 app.use(
@@ -68,10 +67,15 @@ app.use(fileUpload({
     debug: false
 }));
 
-app.get('/', (req, res) => {
+app.get('/', (req, res, next) => {
+
     res.sendFile('index.html', {
         root: __dirname
     });
+    
+});
+app.get('/login', (req, res) => {
+    res.redirect('/login');
 });
 app.use(express.static('public'));
 
