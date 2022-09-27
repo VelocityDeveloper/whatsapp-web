@@ -55,12 +55,10 @@ app.use(fileUpload({
     debug: false
 }));
 
-app.get('/', (req, res) => {
-    res.render("index")
-});
-app.get('/register', (req, res) => {
-    res.render("register")
-});
+// Define Routes
+app.use('/', require('./routes/pages'))
+app.use('/auth', require('./routes/auth'))
+
 app.use(express.static('public'));
 
 // app.get('/', [], async (req, res) => {
