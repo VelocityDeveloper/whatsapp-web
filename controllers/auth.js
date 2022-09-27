@@ -10,7 +10,6 @@ const db = mysql.createConnection({
 });
 
 exports.register = (req, res) => {
-    console.log(req.body);
 
     const { name, email, password, passwordConfirm } = req.body;
     
@@ -41,6 +40,32 @@ exports.register = (req, res) => {
             }
         });
         // res.send("Form Submitted");
+
+    });
+
+}
+
+exports.login = (req, res) => {
+    const { email, password } = req.body;
+    db.query('SELECT * FROM users WHERE email = ?', [email], async (error, results) => {
+        if(error) {
+            console.log(error);
+        }
+
+        // console.log(email);
+        // console.log(password);
+
+        if(email !== results[0].email){
+            return res.render('login', {
+                message: 'Email tidak terdafatar'
+            });
+        }
+
+        if(bcrypt.compare(password, results[0].email)){
+            return res.render('login', {
+                message: 'Login berhasil!'
+            });
+        }
 
     });
 
