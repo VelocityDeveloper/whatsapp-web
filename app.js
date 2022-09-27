@@ -1,5 +1,7 @@
 const { Client, MessageMedia, LocalAuth } = require('whatsapp-web.js');
 const express = require('express');
+const mysql = require('mysql');
+const dotenv = require('dotenv');
 const { body, validationResult } = require('express-validator');
 const socketIO = require('socket.io');
 const qrcode = require('qrcode');
@@ -16,6 +18,26 @@ const port = process.env.PORT || 8000;
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
+
+dotenv.config({
+    path: './.env'
+});
+const db = mysql.createConnection({
+    host: process.env.MYSQL_HOST,
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASS,
+    database: process.env.MYSQL_NAME
+});
+
+app.set('view engine', 'hbs');
+
+db.connect( (error) => {
+    if(error) {
+        console.log(error);
+    } else {
+        console.log("MYSQL connected...")
+    }
+});
 
 app.use(express.json());
 app.use(express.urlencoded({
@@ -34,9 +56,10 @@ app.use(fileUpload({
 }));
 
 app.get('/', (req, res) => {
-    res.sendFile('index.html', {
-        root: __dirname
-    });
+    res.render("index")
+});
+app.get('/register', (req, res) => {
+    res.render("register")
 });
 app.use(express.static('public'));
 

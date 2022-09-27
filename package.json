@@ -16,11 +16,14 @@
   "license": "MIT",
   "dependencies": {
     "axios": "^0.27.2",
+    "dotenv": "^16.0.2",
     "express": "^4.17.1",
     "express-fileupload": "^1.2.0",
     "express-validator": "^6.9.2",
+    "hbs": "^4.2.0",
     "http": "0.0.1-security",
     "mime-types": "^2.1.32",
+    "mysql": "^2.18.1",
     "qrcode": "^1.4.4",
     "socket.io": "^2.5.0",
     "whatsapp-web.js": "latest"
