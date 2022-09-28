@@ -13,7 +13,7 @@
         <div class="frame-chat">
             <div class="row m-0">
                 <div class="col-4 col-md-3 p-0 position-relative">
-                    <img src="" alt="QR Code" id="qrcode">
+                    <img class="pt-5" src="" alt="QR Code" id="qrcode">
                     <div class="search-form">
                         <input class="form-control rounded-0" placeholder="Search Contact..">
                     </div>
@@ -164,6 +164,7 @@
                     const localNama = localData?.nama;
                     let message = $(this).find(".body-message").val();
                     socket.emit('sentMessage', { 'nomor': localNomor, 'message': message });
+                    socket.emit('updateDataContact', 'request Data Kontak');
                     $(".kirim-chat .body-message").val('');
                     event.preventDefault();
                 });
@@ -210,8 +211,6 @@
                     if (data) {
                         $('.chat').html('');
                         const dataListChat = data.sort();
-                        // dataListChat.sort((a, b));
-
                         var arrayLength = dataListChat.length;
                         for (var i = 0;i < arrayLength;i++) {
                             let dataContact = dataListChat[i]?.data;

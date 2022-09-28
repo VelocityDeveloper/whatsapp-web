@@ -17,9 +17,19 @@ const { phoneNumberFormatter } = require('./helpers/formatter');
 const fileUpload = require('express-fileupload');
 
 
+const auth = require("./routes/auth");
+const user = require("./routes/user");
+
+const bodyParser = require("body-parser");
+const passport = require("passport");
+const session = require("express-session");
+const cookieParser = require("cookie-parser");
+const authConfig = require("./config/authConfig");
+
 const port = process.env.PORT || 8000;
 
 const app = express();
+
 const server = http.createServer(app);
 const io = socketIO(server);
 
@@ -50,6 +60,29 @@ app.use(express.json());
 app.use(express.urlencoded({
     extended: false
 }));
+
+// login mania
+// Middlewares
+app.use(
+    session({
+        name: 'session-id',
+        secret: 'scret',
+        saveUninitialized: false,
+        resave: false,
+        cookie: {
+            expires: 600000
+        }
+    })
+);
+
+// Passport
+app.use(passport.initialize());
+app.use(passport.session());
+authConfig(passport);
+
+// Routes
+app.use("/auth", auth);
+app.use("/user", user);
 
 /**
  * BASED ON MANY QUESTIONS
