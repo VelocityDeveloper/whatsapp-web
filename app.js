@@ -1,15 +1,21 @@
 const { Client, MessageMedia, LocalAuth } = require('whatsapp-web.js');
 const express = require('express');
-const { body, validationResult } = require('express-validator');
+const mysql = require('mysql');
+const dotenv = require('dotenv');
+const cookieParser = require("cookie-parser");
 const socketIO = require('socket.io');
 const qrcode = require('qrcode');
 const http = require('http');
 const fs = require('fs');
+const mime = require('mime-types');
+
+const path = require('path');
+const axios = require('axios');
+const { body, validationResult } = require('express-validator');
+
 const { phoneNumberFormatter } = require('./helpers/formatter');
 const fileUpload = require('express-fileupload');
-const axios = require('axios');
-const mime = require('mime-types');
-const path = require('path');
+
 
 const auth = require("./routes/auth");
 const user = require("./routes/user");
@@ -27,12 +33,33 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
 
-app.use(bodyParser());
-app.use(express.json());
-app.use(express.urlencoded({
-    extended: true
-}));
+dotenv.config({
+    path: './.env'
+});
+const db = mysql.createConnection({
+    host: process.env.MYSQL_HOST,
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASS,
+    database: process.env.MYSQL_NAME
+});
 
+app.set('view engine', 'hbs');
+
+db.connect( (error) => {
+    if(error) {
+        console.log(error);
+    } else {
+        console.log("MYSQL connected...")
+    }
+});
+
+app.use(cookieParser());
+// Parse JSON bodies (as sent by API clients)
+app.use(express.json());
+// Parse URL-encoded bodies (as sent by HTML forms)
+app.use(express.urlencoded({
+    extended: false
+}));
 
 // login mania
 // Middlewares
@@ -68,11 +95,10 @@ app.use(fileUpload({
     debug: false
 }));
 
-app.get('/', (req, res) => {
-    res.sendFile('index.html', {
-        root: __dirname
-    });
-});
+// Define Routes
+app.use('/', require('./routes/pages'))
+app.use('/auth', require('./routes/auth'))
+
 app.use(express.static('public'));
 
 // app.get('/', [], async (req, res) => {
