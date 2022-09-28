@@ -14,4 +14,3 @@ exports.cookieJwtAuth = (req, res, next) => {
         });
     }
 };
-
