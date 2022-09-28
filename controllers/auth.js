@@ -10,38 +10,43 @@ const db = mysql.createConnection({
 });
 
 exports.register = (req, res) => {
-
-    const { name, email, password, passwordConfirm } = req.body;
+    if(process.env == true){
+        const { name, email, password, passwordConfirm } = req.body;
     
-    db.query('SELECT email FROM users WHERE email = ?', [email], async (error, results) => {
-        if(error) {
-            console.log(error);
-        }
-        if(results.length > 0){
-            return res.render('register', {
-                message: 'Email sudah terdaftar'
-            });
-        } else if(password !== passwordConfirm) {
-            return res.render('register', {
-                message: 'Password tidak cocok'
-            });
-        }
-
-        let hashedPassword = await bcrypt.hash(password, 8);
-        console.log(hashedPassword);
-        
-        db.query('INSERT INTO users SET ?', {name:name, email:email, password:hashedPassword}, (error, results) => {
+        db.query('SELECT email FROM users WHERE email = ?', [email], async (error, results) => {
             if(error) {
                 console.log(error);
-            } else {
+            }
+            if(results.length > 0){
                 return res.render('register', {
-                    message: 'Pendaftaran berhasil!'
+                    message: 'Email sudah terdaftar'
+                });
+            } else if(password !== passwordConfirm) {
+                return res.render('register', {
+                    message: 'Password tidak cocok'
                 });
             }
+    
+            let hashedPassword = await bcrypt.hash(password, 8);
+            console.log(hashedPassword);
+            
+            db.query('INSERT INTO users SET ?', {name:name, email:email, password:hashedPassword}, (error, results) => {
+                if(error) {
+                    console.log(error);
+                } else {
+                    return res.render('register', {
+                        message: 'Pendaftaran berhasil!'
+                    });
+                }
+            });
+            // res.send("Form Submitted");
+    
         });
-        // res.send("Form Submitted");
-
-    });
+    } else {
+        return res.render('register', {
+            message: 'Fungsi register dimatikan'
+        });
+    }
 
 }
 
@@ -80,11 +85,6 @@ exports.login = async (req, res) => {
                         console.log('user token update');
                     }
                 });
-                // await Users.update({refresh_token: refreshToken},{
-                //     where:{
-                //         id: userId
-                //     }
-                // });
             });
             res.cookie('refreshToken', refreshToken,{
                 httpOnly: true,
