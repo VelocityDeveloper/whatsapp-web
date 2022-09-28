@@ -23,7 +23,6 @@ const user = require("./routes/user");
 const bodyParser = require("body-parser");
 const passport = require("passport");
 const session = require("express-session");
-const cookieParser = require("cookie-parser");
 const authConfig = require("./config/authConfig");
 
 const port = process.env.PORT || 8000;
@@ -38,9 +37,9 @@ dotenv.config({
 });
 const db = mysql.createConnection({
     host: process.env.MYSQL_HOST,
+    database: process.env.MYSQL_NAME,
     user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASS,
-    database: process.env.MYSQL_NAME
+    password: process.env.MYSQL_PASS
 });
 
 app.set('view engine', 'hbs');
@@ -166,45 +165,6 @@ client.on('message', msg => {
             }
         });
     }
-
-    // NOTE!
-    // UNCOMMENT THE SCRIPT BELOW IF YOU WANT TO SAVE THE MESSAGE MEDIA FILES
-    // Downloading media
-    // if (msg.hasMedia) {
-    //   msg.downloadMedia().then(media => {
-    //     // To better understanding
-    //     // Please look at the console what data we get
-    //     console.log(media);
-
-    //     if (media) {
-    //       // The folder to store: change as you want!
-    //       // Create if not exists
-    //       const mediaPath = './public/download/';
-
-    //       if (!fs.existsSync(mediaPath)) {
-    //         fs.mkdirSync(mediaPath);
-    //       }
-
-    //       // Get the file extension by mime-type
-    //       const extension = mime.extension(media.mimetype);
-
-    //       // Filename: change as you want! 
-    //       // I will use the time for this example
-    //       // Why not use media.filename? Because the value is not certain exists
-    //       const filename = new Date().getTime();
-
-    //       const fullFilename = mediaPath + filename + '.' + extension;
-
-    //       // Save to file
-    //       try {
-    //         fs.writeFileSync(fullFilename, media.data, { encoding: 'base64' }); 
-    //         console.log('File downloaded successfully!', fullFilename);
-    //       } catch (err) {
-    //         console.log('Failed to save the file:', err);
-    //       }
-    //     }
-    //   });
-    // }
 });
 
 client.initialize();
@@ -269,8 +229,8 @@ io.on('connection', function (socket) {
 
                     // Filename: change as you want! 
                     // I will use the time for this example
-                    // Why not use media.filename? Because the value is not certain exists
-                    const filename = media.filename ? media.filename : new Date().getTime() + '.' + extension;
+                    // Why not use messages.filename? Because the value is not certain exists
+                    const filename = message.timestamp+ '.' + extension;
 
                     const fullFilename = mediaPath + filename;
                     socket.emit('getMedia', { key: value.mediaKey, name: filename, ext: extension });
@@ -311,10 +271,11 @@ io.on('connection', function (socket) {
 
 
             client.sendMessage(number, message).then(response => {
-                // console.log(response);
                 socket.emit('getChatByNumber', response);
-                if (response.hasMedia) {
-                    response.downloadMedia().then(media => {
+
+                const messages = response;
+                if (messages.hasMedia) {
+                    messages.downloadMedia().then(media => {
 
                         // To better understanding
                         // Please look at the console what data we get
@@ -334,8 +295,8 @@ io.on('connection', function (socket) {
 
                             // Filename: change as you want! 
                             // I will use the time for this example
-                            // Why not use media.filename? Because the value is not certain exists
-                            const filename = media.filename ? media.filename : new Date().getTime() + '.' + extension;
+                            // Why not use messages.filename? Because the value is not certain exists
+                            const filename = messages.timestamp+ '.' + extension;
 
                             const fullFilename = mediaPath + filename;
                             socket.emit('getMedia', { key: value.mediaKey, name: filename, ext: extension });
@@ -374,14 +335,13 @@ io.on('connection', function (socket) {
                 // socket.emit('log', 'getchatbyid diterima server');    
                 // console.log('mendapatkan chat dari nomor'+number);
                 messages.forEach(messages => {
-                    let value = messages;
                     socket.emit('getChatByNumber', messages);
-                    if (value.hasMedia) {
-                        value.downloadMedia().then(media => {
+                    if (messages.hasMedia) {
+                        messages.downloadMedia().then(media => {
 
                             // To better understanding
                             // Please look at the console what data we get
-                            // console.log(media);
+                            // console.log(messages);
 
                             if (media) {
                                 // The folder to store: change as you want!
@@ -397,11 +357,11 @@ io.on('connection', function (socket) {
 
                                 // Filename: change as you want! 
                                 // I will use the time for this example
-                                // Why not use media.filename? Because the value is not certain exists
-                                const filename = media.filename ? media.filename : new Date().getTime() + '.' + extension;
+                                // Why not use messages.filename? Because the value is not certain exists
+                                const filename = messages.timestamp+ '.' + extension;
 
                                 const fullFilename = mediaPath + filename;
-                                socket.emit('getMedia', { key: value.mediaKey, name: filename, ext: extension });
+                                socket.emit('getMedia', { key: messages.mediaKey, name: filename, ext: extension });
                                 // Save to file
                                 try {
                                     fs.writeFileSync(fullFilename, media.data, { encoding: 'base64' });

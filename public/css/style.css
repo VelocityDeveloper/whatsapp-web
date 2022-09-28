@@ -132,25 +132,6 @@ ul.logs li:first-child {
   position: relative;
 }
 
-.lampiran svg {
-  position: relative;
-  left: -5px;
-  top: -4px;
-}
-
-.lampiran {
-  position: absolute;
-  color: white;
-  background-color: #2f9b58;
-  padding: 10px;
-  height: 40px;
-  width: 40px;
-  border-radius: 20px;
-  text-align: center;
-  left: 0px;
-  top: -1px;
-}
-
 .height-100vh {
   height: 100vh;
 }

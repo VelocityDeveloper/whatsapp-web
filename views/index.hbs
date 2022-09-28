@@ -13,7 +13,10 @@
         <div class="frame-chat">
             <div class="row m-0">
                 <div class="col-4 col-md-3 p-0 position-relative">
-                    <img class="pt-5" src="" alt="QR Code" id="qrcode">
+                    <div class="mt-5">
+                        <img class="pt-5" src="" alt="QR Code" id="qrcode">
+                    </div>
+
                     <div class="search-form">
                         <input class="form-control rounded-0" placeholder="Search Contact..">
                     </div>
@@ -41,7 +44,8 @@
 
                         <form class="kirim-chat">
                             <div class="row mx-0">
-                                <div class="col-10">
+                                <div class="col-10 d-flex">
+                                    <textarea class="body-message form-control" placeholder="" rows="1"></textarea>
                                     <label for="lampiran" class="blue-100 lampiran">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"
                                             fill="currentColor" class="bi bi-paperclip" viewBox="0 0 16 16">
@@ -50,7 +54,6 @@
                                         </svg>
                                     </label>
                                     <input id="lapiran" type="file" class=" form-control d-none">
-                                    <textarea class="body-message form-control" placeholder="" rows="1"></textarea>
                                 </div>
                                 <div class="col-2">
                                     <button class="btn btn-success w-100">
