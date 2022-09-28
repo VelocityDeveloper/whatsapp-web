@@ -78,15 +78,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/smooth-scrollbar/5.0.1/smooth-scrollbar.js"
         integrity="sha512-fNprFnoeUomE0+m0nYtgoIrlUm81yW4dtuBVhMluVYlbpYEGMfEbUJJN4muTYiltfmDyWkQ5TpmwmIhdFK7qEA=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"
-        integrity="sha512-CryKbMe7sjSCDPl18jtJI5DR5jtkUWxPXWaLCst6QjH8wxDexfRJic2WRmRXmstr2Y8SxDDWuBO6CQC6IE4KTA=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment-with-locales.min.js"
-        integrity="sha512-42PE0rd+wZ2hNXftlM78BSehIGzezNeQuzihiBCvUEB3CVxHvsShF86wBWwQORNxNINlBPuq7rG4WWhNiTVHFg=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/id.min.js"
-        integrity="sha512-he8U4ic6kf3kustvJfiERUpojM8barHoz0WYpAUDWQVn61efpm3aVAD8RWL8OloaDDzMZ1gZiubF9OSdYBqHfQ=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js" crossorigin="anonymous"></script>
     <script>
@@ -198,7 +189,6 @@
                     const img = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
                     const audio = ['ogg', 'mp3', 'oga'];
                     const video = ['mp4'];
-                    console.log(msg);
                     if (img.includes(msg.ext)) {
                         $('[data-media="' + msg.key + '"]').html('<img src="/download/' + msg.name + '" alt="">');
                     } else if (video.includes(msg.ext)) {
@@ -237,7 +227,7 @@
                                             <div class="col-10">
                                             <div class="ms-2 me-auto">
                                             <div class="data-nama">`+ dataContact.name + `</div>
-                                            <div style="font-size:8px;">`+ moment.unix(dataContact.timestamp).format("DD-MM-YYYY h:mm:ss") + `</div>
+                                            <div style="font-size:8px;">`+ dataContact.timestamp + `</div>
                                         </div>`;
                             if (dataContact.unreadCount < 0) {
                                 contact += `<span class="badge bg-success rounded-pill text-success">!</span>`;
@@ -277,7 +267,7 @@
                             html += value.body;
                         }
 
-                        html += '<div><small style="font-size:8px;">' + moment.unix(value.timestamp).format("DD-MM-YYYY h:mm:ss") + "</small></div>";
+                        html += '<div><small style="font-size:8px;">' + value.timestamp + "</small></div>";
                         html += '</span></div>';
                         $(".chatarea").append(html);
                     }

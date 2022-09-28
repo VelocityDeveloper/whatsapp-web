@@ -1,8 +1,9 @@
 const express = require('express');
+const { cookieJwtAuth } = require("../middleware/cookieJwtAuth");
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
+router.get('/', cookieJwtAuth, (req, res) => {
     res.render("index")
 });
 router.get('/register', (req, res) => {

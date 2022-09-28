@@ -2,16 +2,20 @@ const { Client, MessageMedia, LocalAuth } = require('whatsapp-web.js');
 const express = require('express');
 const mysql = require('mysql');
 const dotenv = require('dotenv');
-const { body, validationResult } = require('express-validator');
+const cookieParser = require("cookie-parser");
 const socketIO = require('socket.io');
 const qrcode = require('qrcode');
 const http = require('http');
 const fs = require('fs');
+const mime = require('mime-types');
+
+const path = require('path');
+const axios = require('axios');
+const { body, validationResult } = require('express-validator');
+
 const { phoneNumberFormatter } = require('./helpers/formatter');
 const fileUpload = require('express-fileupload');
-const axios = require('axios');
-const mime = require('mime-types');
-const path = require('path');
+
 
 const port = process.env.PORT || 8000;
 
@@ -39,6 +43,7 @@ db.connect( (error) => {
     }
 });
 
+app.use(cookieParser());
 // Parse JSON bodies (as sent by API clients)
 app.use(express.json());
 // Parse URL-encoded bodies (as sent by HTML forms)

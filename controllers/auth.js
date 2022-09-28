@@ -71,19 +71,31 @@ exports.login = async (req, res) => {
             const refreshToken = jwt.sign({userId, userName, userEmail}, process.env.ACCESS_TOKEN,{
                 expiresIn: '1d'
             });
-            // await Users.update({refresh_token: refreshToken},{
-            //     where:{
-            //         id: userId
-            //     }
-            // });
+
+            db.query('SELECT user_id FROM auth WHERE user_id = ?', [userId], async (error, results) => {
+                db.query('INSERT INTO auth SET ?', {user_id:userId, token:refreshToken}, (error, results) => {
+                    if(error) {
+                        console.log(error);
+                    } else {
+                        console.log('user token update');
+                    }
+                });
+                // await Users.update({refresh_token: refreshToken},{
+                //     where:{
+                //         id: userId
+                //     }
+                // });
+            });
             res.cookie('refreshToken', refreshToken,{
                 httpOnly: true,
                 maxAge: 24 * 60 * 60 * 1000
             });
             // res.json({ accessToken });
 
+            return res.redirect("/");
+        } else {
             return res.render('login', {
-                message: 'Login berhasil!'
+                message: 'Password salah'
             });
         }
 
