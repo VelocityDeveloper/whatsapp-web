@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="shortcut icon" href="/img/whatsapp.png" type="image/x-icon">
     <title>Document</title>
 </head>
 <body>
@@ -46,14 +47,14 @@
                             <div class="row mx-0">
                                 <div class="col-10 d-flex">
                                     <textarea class="body-message form-control" placeholder="" rows="1"></textarea>
-                                    <label for="lampiran" class="blue-100 lampiran">
+                                    <label for="lampiran" class="blue-100 lampiran form-label">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"
                                             fill="currentColor" class="bi bi-paperclip" viewBox="0 0 16 16">
                                             <path
                                                 d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z" />
                                         </svg>
                                     </label>
-                                    <input id="lapiran" type="file" class=" form-control d-none">
+                                    <input id="lampiran" type="file" class=" form-control d-none">
                                 </div>
                                 <div class="col-2">
                                     <button class="btn btn-success w-100">
@@ -68,7 +69,6 @@
                             </div>
                         </form>
 
-
                     </div>
                     <ul class="list-group logs d-none">
                     </ul>
@@ -82,7 +82,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js" crossorigin="anonymous"></script>
     <script>
-
         let Scrollbar = window.Scrollbar;
         var options = {
             alwaysShowTracks: true
@@ -100,9 +99,6 @@
 
                 // init kontak
                 socket.emit('updateDataContact', 'request Data Kontak');
-                socket.on('chatMasuk', function (msg) {
-                    socket.emit('updateDataContact', 'request Data Kontak karena chat masuk');
-                });
 
                 if (localNomor && localId) {
                     socket.emit('getchatbyid', localNomor);
@@ -152,6 +148,11 @@
                         });
                     }
                 });
+
+                //$(document).on("change", ".#lampiran", function () {
+                //    const lampiran = $(this).val();
+                //    console.log(lampiran);
+                //});
 
                 $(".kirim-chat").submit(function (event) {
                     const localData = JSON.parse(localStorage.getItem('curentchat'));
@@ -244,6 +245,7 @@
                 });
 
                 socket.on('getChatByNumber', function (data) {
+                    socket.emit('updateDataContact', 'request Data Kontak');
                     const localData = JSON.parse(localStorage.getItem('curentchat'));
                     const localNomor = localData?.nomor;
                     const localId = localData?.id;

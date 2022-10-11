@@ -146,6 +146,14 @@ ul.logs li:first-child {
   position: relative;
 }
 
+.lampiran {
+  padding: 4px 15px;
+}
+
+.lampiran svg {
+  color: #ddd
+}
+
 .fixed-chatform {
   padding: 10px;
   position: absolute;

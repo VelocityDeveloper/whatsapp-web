@@ -207,6 +207,7 @@ io.on('connection', function (socket) {
 
     client.on('message', async function (message) {
         socket.emit('getChatByNumber', message);
+
         let value = message;
         if (value.hasMedia) {
             value.downloadMedia().then(media => {
@@ -253,7 +254,7 @@ io.on('connection', function (socket) {
             console.log('sinkronkan kontak karena chat masuk');
             console.log(msg);
         } else {
-            socket.emit('getContact', 'not ready yet!');
+            socket.emit('getContact', 'Client belum siap!');
             console.log('Client belum siap!');
         }
     });
@@ -271,7 +272,6 @@ io.on('connection', function (socket) {
 
 
             client.sendMessage(number, message).then(response => {
-                socket.emit('getChatByNumber', response);
 
                 const messages = response;
                 if (messages.hasMedia) {
