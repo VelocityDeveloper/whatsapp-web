@@ -14,7 +14,7 @@ const db = mysql.createConnection({
 });
 
 exports.register = (req, res) => {
-    if(process.env == true){
+    if(process.env.REGISTER_FUNC){
         const { name, email, password, passwordConfirm } = req.body;
     
         db.query('SELECT email FROM users WHERE email = ?', [email], async (error, results) => {
@@ -63,11 +63,11 @@ exports.login = async (req, res) => {
             console.log(error);
         }
 
-        console.log(results);
-        const userId = results[0].id;
-        const userName = results[0].name;
-        const userEmail = results[0].email;
-        const userPassword = results[0].password;
+        // console.log(results);
+        const userId = results[0]?.id;
+        const userName = results[0]?.name;
+        const userEmail = results[0]?.email;
+        const userPassword = results[0]?.password;
 
         if(email !== userEmail){
             return res.render('login', {
