@@ -206,12 +206,29 @@
 
                 socket.on('getContact', function (data) {
                     if (data) {
-                        $('.chat').html('');
+                        {{!-- $('.chat').html(''); --}}
                         const dataListChat = data.sort();
                         var arrayLength = dataListChat.length;
                         for (var i = 0;i < arrayLength;i++) {
                             let dataContact = dataListChat[i]?.data;
-                            socket.emit('reqPicUrl', dataContact.id);
+                            {{!-- socket.emit('reqPicUrl', dataContact.id); --}}
+
+
+                            let unix_timestamp = dataContact.timestamp;
+                            // Create a new JavaScript Date object based on the timestamp
+                            // multiplied by 1000 so that the argument is in milliseconds, not seconds.
+                            var date = new Date(unix_timestamp * 1000);
+
+                            var year = date.getFullYear();
+                            var month = date.getMonth();
+                            var day = date.getDay();
+                            var hours = date.getHours();
+                            var minutes = "0" + date.getMinutes();
+                            var seconds = "0" + date.getSeconds();
+
+                            // Will display time in 10:30:23 format
+                            var formattedTime = day +'/'+ month +'/'+ year +' '+ hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+
                             //Do something
                             let contact = ``
                             contact += `<div class="row card-contact">`;
@@ -221,7 +238,7 @@
                                             <div class="col-10">
                                             <div class="ms-2 me-auto">
                                             <div class="data-nama">`+ dataContact.name + `</div>
-                                            <div style="font-size:8px;">`+ dataContact.timestamp + `</div>
+                                            <div style="font-size:8px;">`+ formattedTime + `</div>
                                         </div>`;
                             if (dataContact.unreadCount < 0) {
                                 contact += `<span class="badge bg-success rounded-pill text-success">!</span>`;
@@ -245,7 +262,6 @@
                 });
 
                 socket.on('getChatByNumber', function (data) {
-                    socket.emit('updateDataContact', 'request Data Kontak');
                     const localData = JSON.parse(localStorage.getItem('curentchat'));
                     const localNomor = localData?.nomor;
                     const localId = localData?.id;

@@ -8,7 +8,6 @@ const qrcode = require('qrcode');
 const http = require('http');
 const fs = require('fs');
 const mime = require('mime-types');
-
 const path = require('path');
 const axios = require('axios');
 const { body, validationResult } = require('express-validator');
@@ -44,8 +43,8 @@ const db = mysql.createConnection({
 
 app.set('view engine', 'hbs');
 
-db.connect( (error) => {
-    if(error) {
+db.connect((error) => {
+    if (error) {
         console.log(error);
     } else {
         console.log("MYSQL connected...")
@@ -231,7 +230,7 @@ io.on('connection', function (socket) {
                     // Filename: change as you want! 
                     // I will use the time for this example
                     // Why not use messages.filename? Because the value is not certain exists
-                    const filename = message.timestamp+ '.' + extension;
+                    const filename = message.timestamp + '.' + extension;
 
                     const fullFilename = mediaPath + filename;
                     socket.emit('getMedia', { key: value.mediaKey, name: filename, ext: extension });
@@ -296,7 +295,7 @@ io.on('connection', function (socket) {
                             // Filename: change as you want! 
                             // I will use the time for this example
                             // Why not use messages.filename? Because the value is not certain exists
-                            const filename = messages.timestamp+ '.' + extension;
+                            const filename = messages.timestamp + '.' + extension;
 
                             const fullFilename = mediaPath + filename;
                             socket.emit('getMedia', { key: value.mediaKey, name: filename, ext: extension });
@@ -358,7 +357,7 @@ io.on('connection', function (socket) {
                                 // Filename: change as you want! 
                                 // I will use the time for this example
                                 // Why not use messages.filename? Because the value is not certain exists
-                                const filename = messages.timestamp+ '.' + extension;
+                                const filename = messages.timestamp + '.' + extension;
 
                                 const fullFilename = mediaPath + filename;
                                 socket.emit('getMedia', { key: messages.mediaKey, name: filename, ext: extension });
