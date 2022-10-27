@@ -1,20 +1,20 @@
-const { Client, MessageMedia, LocalAuth } = require('whatsapp-web.js');
-const express = require('express');
-const mysql = require('mysql');
-const dotenv = require('dotenv');
+const { Client, MessageMedia, LocalAuth } = require("whatsapp-web.js");
+const express = require("express");
+const mysql = require("mysql");
+const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
-const socketIO = require('socket.io');
-const qrcode = require('qrcode');
-const http = require('http');
-const fs = require('fs');
-const mime = require('mime-types');
-const path = require('path');
-const axios = require('axios');
-const { body, validationResult } = require('express-validator');
+const socketIO = require("socket.io");
+const qrcode = require("qrcode");
+const http = require("http");
+const fs = require("fs");
+const mime = require("mime-types");
+const path = require("path");
+const { body, validationResult } = require("express-validator");
 
-const { phoneNumberFormatter } = require('./helpers/formatter');
-const fileUpload = require('express-fileupload');
+const { engine } = require("express-handlebars");
 
+const { phoneNumberFormatter } = require("./helpers/formatter");
+const fileUpload = require("express-fileupload");
 
 const auth = require("./routes/auth");
 const user = require("./routes/user");
@@ -32,45 +32,56 @@ const server = http.createServer(app);
 const io = socketIO(server);
 
 dotenv.config({
-    path: './.env'
+	path: "./.env",
 });
 const db = mysql.createConnection({
-    host: process.env.MYSQL_HOST,
-    database: process.env.MYSQL_NAME,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASS
+	host: process.env.MYSQL_HOST,
+	database: process.env.MYSQL_NAME,
+	user: process.env.MYSQL_USER,
+	password: process.env.MYSQL_PASS,
 });
 
-app.set('view engine', 'hbs');
+var handlebars = require("express-handlebars").create({
+	layoutsDir: path.join(__dirname, "views/layouts"),
+	partialsDir: path.join(__dirname, "views/partials"),
+	defaultLayout: "main",
+	extname: "hbs",
+});
+
+app.engine("hbs", handlebars.engine);
+app.set("view engine", "hbs");
+app.set("views", path.join(__dirname, "views"));
 
 db.connect((error) => {
-    if (error) {
-        console.log(error);
-    } else {
-        console.log("MYSQL connected...")
-    }
+	if (error) {
+		console.log(error);
+	} else {
+		console.log("MYSQL connected...");
+	}
 });
 
 app.use(cookieParser());
 // Parse JSON bodies (as sent by API clients)
 app.use(express.json());
 // Parse URL-encoded bodies (as sent by HTML forms)
-app.use(express.urlencoded({
-    extended: false
-}));
+app.use(
+	express.urlencoded({
+		extended: false,
+	})
+);
 
 // login mania
 // Middlewares
 app.use(
-    session({
-        name: 'session-id',
-        secret: 'scret',
-        saveUninitialized: false,
-        resave: false,
-        cookie: {
-            expires: 600000
-        }
-    })
+	session({
+		name: "session-id",
+		secret: "scret",
+		saveUninitialized: false,
+		resave: false,
+		cookie: {
+			expires: 600000,
+		},
+	})
 );
 
 // Passport
@@ -85,19 +96,21 @@ app.use("/user", user);
 /**
  * BASED ON MANY QUESTIONS
  * Actually ready mentioned on the tutorials
- * 
+ *
  * Many people confused about the warning for file-upload
  * So, we just disabling the debug for simplicity.
  */
-app.use(fileUpload({
-    debug: false
-}));
+app.use(
+	fileUpload({
+		debug: false,
+	})
+);
 
 // Define Routes
-app.use('/', require('./routes/pages'))
-app.use('/auth', require('./routes/auth'))
+app.use("/", require("./routes/pages"));
+app.use("/auth", require("./routes/auth"));
 
-app.use(express.static('public'));
+app.use(express.static("public"));
 
 // app.get('/', [], async (req, res) => {
 //     const errors = validationResult(req).formatWith(({
@@ -125,286 +138,297 @@ app.use(express.static('public'));
 // });
 
 const client = new Client({
-    restartOnAuthFail: true,
-    puppeteer: {
-        headless: true,
-        args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-accelerated-2d-canvas',
-            '--no-first-run',
-            '--no-zygote',
-            '--single-process', // <- this one doesn't works in Windows
-            '--disable-gpu'
-        ],
-    },
-    authStrategy: new LocalAuth()
+	restartOnAuthFail: true,
+	puppeteer: {
+		headless: true,
+		args: [
+			"--no-sandbox",
+			"--disable-setuid-sandbox",
+			"--disable-dev-shm-usage",
+			"--disable-accelerated-2d-canvas",
+			"--no-first-run",
+			"--no-zygote",
+			"--single-process", // <- this one doesn't works in Windows
+			"--disable-gpu",
+		],
+	},
+	authStrategy: new LocalAuth(),
 });
 
-client.on('message', msg => {
+client.on("message", (msg) => {
+	if (msg.body == "ping") {
+		msg.reply("Pesan ini dibalas oleh bot!");
+	} else if (msg.body == "good morning") {
+		msg.reply("selamat pagi");
+	} else if (msg.body == "!groups") {
+		client.getChats().then((chats) => {
+			const groups = chats.filter((chat) => chat.isGroup);
 
-    if (msg.body == 'ping') {
-        msg.reply('Pesan ini dibalas oleh bot!');
-    } else if (msg.body == 'good morning') {
-        msg.reply('selamat pagi');
-    } else if (msg.body == '!groups') {
-        client.getChats().then(chats => {
-            const groups = chats.filter(chat => chat.isGroup);
-
-            if (groups.length == 0) {
-                msg.reply('You have no group yet.');
-            } else {
-                let replyMsg = '*YOUR GROUPS*\n\n';
-                groups.forEach((group, i) => {
-                    replyMsg += `ID: ${group.id._serialized}\nName: ${group.name}\n\n`;
-                });
-                replyMsg += '_You can use the group id to send a message to the group._'
-                msg.reply(replyMsg);
-            }
-        });
-    }
+			if (groups.length == 0) {
+				msg.reply("You have no group yet.");
+			} else {
+				let replyMsg = "*YOUR GROUPS*\n\n";
+				groups.forEach((group, i) => {
+					replyMsg += `ID: ${group.id._serialized}\nName: ${group.name}\n\n`;
+				});
+				replyMsg +=
+					"_You can use the group id to send a message to the group._";
+				msg.reply(replyMsg);
+			}
+		});
+	}
 });
 
 client.initialize();
 
 // Socket IO
-io.on('connection', function (socket) {
+io.on("connection", function (socket) {
+	socket.emit("message", "Menghububugkan...");
+	// const allChats = client.getChats();
+	// socket.emit('getContact', client.getChats());
 
-    socket.emit('message', 'Menghububugkan...');
-    // const allChats = client.getChats();
-    // socket.emit('getContact', client.getChats());
+	client.on("qr", (qr) => {
+		console.log("QR RECEIVED", qr);
+		qrcode.toDataURL(qr, (err, url) => {
+			socket.emit("qr", url);
+			socket.emit("message", "QR Code received, scan please!");
+		});
+	});
 
-    client.on('qr', (qr) => {
-        console.log('QR RECEIVED', qr);
-        qrcode.toDataURL(qr, (err, url) => {
-            socket.emit('qr', url);
-            socket.emit('message', 'QR Code received, scan please!');
-        });
-    });
+	client.on("authenticated", () => {
+		socket.emit("authenticated", "Whatsapp is authenticated!");
+		socket.emit("message", "Whatsapp is authenticated!");
+		console.log("AUTHENTICATED");
+	});
 
-    client.on('authenticated', () => {
-        socket.emit('authenticated', 'Whatsapp is authenticated!');
-        socket.emit('message', 'Whatsapp is authenticated!');
-        console.log('AUTHENTICATED');
-    });
+	client.on("auth_failure", function (session) {
+		socket.emit("message", "Auth failure, restarting...");
+		console.log(session);
+	});
 
-    client.on('auth_failure', function (session) {
-        socket.emit('message', 'Auth failure, restarting...');
-        console.log(session);
-    });
+	client.on("disconnected", (reason) => {
+		socket.emit("message", "Whatsapp is disconnected!");
+		client.destroy();
+		client.initialize();
+	});
 
-    client.on('disconnected', (reason) => {
-        socket.emit('message', 'Whatsapp is disconnected!');
-        client.destroy();
-        client.initialize();
-    });
+	client.on("ready", async function () {
+		console.log("client ready");
+	});
 
-    client.on('ready', async function () {
-        console.log('client ready');
-    });
+	client.on("message", async function (message) {
+		socket.emit("getChatByNumber", message);
 
-    client.on('message', async function (message) {
-        socket.emit('getChatByNumber', message);
+		let value = message;
+		if (value.hasMedia) {
+			value.downloadMedia().then((media) => {
+				// To better understanding
+				// Please look at the console what data we get
+				// console.log(media);
 
-        let value = message;
-        if (value.hasMedia) {
-            value.downloadMedia().then(media => {
+				if (media) {
+					// The folder to store: change as you want!
+					// Create if not exists
+					const mediaPath = "./public/download/";
 
-                // To better understanding
-                // Please look at the console what data we get
-                // console.log(media);
+					if (!fs.existsSync(mediaPath)) {
+						fs.mkdirSync(mediaPath, { recursive: true }, (err) => {});
+					}
 
-                if (media) {
-                    // The folder to store: change as you want!
-                    // Create if not exists
-                    const mediaPath = './public/download/';
+					// Get the file extension by mime-type
+					const extension = mime.extension(media.mimetype);
 
-                    if (!fs.existsSync(mediaPath)) {
-                        fs.mkdirSync(mediaPath, { recursive: true }, err => { });
-                    }
+					// Filename: change as you want!
+					// I will use the time for this example
+					// Why not use messages.filename? Because the value is not certain exists
+					const filename = message.timestamp + "." + extension;
 
-                    // Get the file extension by mime-type
-                    const extension = mime.extension(media.mimetype);
+					const fullFilename = mediaPath + filename;
+					socket.emit("getMedia", {
+						key: value.mediaKey,
+						name: filename,
+						ext: extension,
+					});
+					// Save to file
+					try {
+						fs.writeFileSync(fullFilename, media.data, { encoding: "base64" });
+						// console.log('File downloaded successfully! ', fullFilename);
+					} catch (err) {
+						//   console.log('Failed to save the file:', err);
+					}
+				}
+			});
+		}
+	});
 
-                    // Filename: change as you want! 
-                    // I will use the time for this example
-                    // Why not use messages.filename? Because the value is not certain exists
-                    const filename = message.timestamp + '.' + extension;
+	socket.on("updateDataContact", async function (msg) {
+		if (typeof client.info?.wid !== "undefined") {
+			let isChatIn = await contactInit();
+			socket.emit("getContact", isChatIn);
+			console.log("sinkronkan kontak karena chat masuk");
+			console.log(msg);
+		} else {
+			socket.emit("getContact", "Client belum siap!");
+			console.log("Client belum siap!");
+		}
+	});
 
-                    const fullFilename = mediaPath + filename;
-                    socket.emit('getMedia', { key: value.mediaKey, name: filename, ext: extension });
-                    // Save to file
-                    try {
-                        fs.writeFileSync(fullFilename, media.data, { encoding: 'base64' });
-                        // console.log('File downloaded successfully! ', fullFilename);
-                    } catch (err) {
-                        //   console.log('Failed to save the file:', err);
-                    }
-                }
-            });
-        }
-    });
+	socket.on("sentMessage", async function (data) {
+		if (typeof client.info?.wid !== "undefined") {
+			const number = phoneNumberFormatter(data.nomor);
+			const message = data.message;
 
-    socket.on('updateDataContact', async function (msg) {
-        if (typeof client.info?.wid !== 'undefined') {
-            let isChatIn = await contactInit();
-            socket.emit('getContact', isChatIn);
-            console.log('sinkronkan kontak karena chat masuk');
-            console.log(msg);
-        } else {
-            socket.emit('getContact', 'Client belum siap!');
-            console.log('Client belum siap!');
-        }
-    });
+			const isRegisteredNumber = await checkRegisteredNumber(number);
 
-    socket.on('sentMessage', async function (data) {
-        if (typeof client.info?.wid !== 'undefined') {
-            const number = phoneNumberFormatter(data.nomor);
-            const message = data.message;
+			if (!isRegisteredNumber) {
+				socket.emit("log", "nomor tidak terdaftar");
+			}
 
-            const isRegisteredNumber = await checkRegisteredNumber(number);
+			client
+				.sendMessage(number, message)
+				.then((response) => {
+					const messages = response;
+					if (messages.hasMedia) {
+						messages.downloadMedia().then((media) => {
+							// To better understanding
+							// Please look at the console what data we get
+							// console.log(media);
 
-            if (!isRegisteredNumber) {
-                socket.emit('log', 'nomor tidak terdaftar');
-            }
+							if (media) {
+								// The folder to store: change as you want!
+								// Create if not exists
+								const mediaPath = "./public/download/";
 
+								if (!fs.existsSync(mediaPath)) {
+									fs.mkdirSync(mediaPath, { recursive: true }, (err) => {});
+								}
 
-            client.sendMessage(number, message).then(response => {
+								// Get the file extension by mime-type
+								const extension = mime.extension(media.mimetype);
 
-                const messages = response;
-                if (messages.hasMedia) {
-                    messages.downloadMedia().then(media => {
+								// Filename: change as you want!
+								// I will use the time for this example
+								// Why not use messages.filename? Because the value is not certain exists
+								const filename = messages.timestamp + "." + extension;
 
-                        // To better understanding
-                        // Please look at the console what data we get
-                        // console.log(media);
+								const fullFilename = mediaPath + filename;
+								socket.emit("getMedia", {
+									key: value.mediaKey,
+									name: filename,
+									ext: extension,
+								});
+								// Save to file
+								try {
+									fs.writeFileSync(fullFilename, media.data, {
+										encoding: "base64",
+									});
+									// console.log('File downloaded successfully! ', fullFilename);
+								} catch (err) {
+									//   console.log('Failed to save the file:', err);
+								}
+							}
+						});
+					}
+					socket.emit("sentMessageSuccess", data.nomor);
+				})
+				.catch((err) => {
+					socket.emit("log", err);
+				});
+		}
+	});
 
-                        if (media) {
-                            // The folder to store: change as you want!
-                            // Create if not exists
-                            const mediaPath = './public/download/';
+	socket.on("reqPicUrl", async function (data) {
+		// socket.emit('log', client);
+		if (typeof client.info?.wid !== "undefined") {
+			let pic = await client.getProfilePicUrl(data);
+			socket.emit("getPicUrl", { data: data, url: pic });
+		}
+	});
 
-                            if (!fs.existsSync(mediaPath)) {
-                                fs.mkdirSync(mediaPath, { recursive: true }, err => { });
-                            }
+	socket.on("getchatbyid", async function (msg) {
+		if (typeof client.info?.wid !== "undefined") {
+			const number = phoneNumberFormatter(msg);
 
-                            // Get the file extension by mime-type
-                            const extension = mime.extension(media.mimetype);
+			const chat = await client.getChatById(number);
 
-                            // Filename: change as you want! 
-                            // I will use the time for this example
-                            // Why not use messages.filename? Because the value is not certain exists
-                            const filename = messages.timestamp + '.' + extension;
+			chat.fetchMessages({ limit: 1000 }).then((messages) => {
+				// socket.emit('log', 'getchatbyid diterima server');
+				// console.log('mendapatkan chat dari nomor'+number);
+				messages.forEach((messages) => {
+					socket.emit("getChatByNumber", messages);
+					if (messages.hasMedia) {
+						messages.downloadMedia().then((media) => {
+							// To better understanding
+							// Please look at the console what data we get
+							// console.log(messages);
 
-                            const fullFilename = mediaPath + filename;
-                            socket.emit('getMedia', { key: value.mediaKey, name: filename, ext: extension });
-                            // Save to file
-                            try {
-                                fs.writeFileSync(fullFilename, media.data, { encoding: 'base64' });
-                                // console.log('File downloaded successfully! ', fullFilename);
-                            } catch (err) {
-                                //   console.log('Failed to save the file:', err);
-                            }
-                        }
-                    });
-                }
-                socket.emit('sentMessageSuccess', data.nomor);
-            }).catch(err => {
-                socket.emit('log', err);
-            });
-        }
-    });
+							if (media) {
+								// The folder to store: change as you want!
+								// Create if not exists
+								const mediaPath = "./public/download/";
 
-    socket.on('reqPicUrl', async function (data) {
-        // socket.emit('log', client);  
-        if (typeof client.info?.wid !== 'undefined') {
-            let pic = await client.getProfilePicUrl(data);
-            socket.emit('getPicUrl', { data: data, url: pic });
-        }
-    });
+								if (!fs.existsSync(mediaPath)) {
+									fs.mkdirSync(mediaPath, { recursive: true }, (err) => {});
+								}
 
-    socket.on('getchatbyid', async function (msg) {
-        if (typeof client.info?.wid !== 'undefined') {
-            const number = phoneNumberFormatter(msg);
+								// Get the file extension by mime-type
+								const extension = mime.extension(media.mimetype);
 
-            const chat = await client.getChatById(number);
+								// Filename: change as you want!
+								// I will use the time for this example
+								// Why not use messages.filename? Because the value is not certain exists
+								const filename = messages.timestamp + "." + extension;
 
-            chat.fetchMessages({ limit: 1000 }).then(messages => {
-                // socket.emit('log', 'getchatbyid diterima server');    
-                // console.log('mendapatkan chat dari nomor'+number);
-                messages.forEach(messages => {
-                    socket.emit('getChatByNumber', messages);
-                    if (messages.hasMedia) {
-                        messages.downloadMedia().then(media => {
-
-                            // To better understanding
-                            // Please look at the console what data we get
-                            // console.log(messages);
-
-                            if (media) {
-                                // The folder to store: change as you want!
-                                // Create if not exists
-                                const mediaPath = './public/download/';
-
-                                if (!fs.existsSync(mediaPath)) {
-                                    fs.mkdirSync(mediaPath, { recursive: true }, err => { });
-                                }
-
-                                // Get the file extension by mime-type
-                                const extension = mime.extension(media.mimetype);
-
-                                // Filename: change as you want! 
-                                // I will use the time for this example
-                                // Why not use messages.filename? Because the value is not certain exists
-                                const filename = messages.timestamp + '.' + extension;
-
-                                const fullFilename = mediaPath + filename;
-                                socket.emit('getMedia', { key: messages.mediaKey, name: filename, ext: extension });
-                                // Save to file
-                                try {
-                                    fs.writeFileSync(fullFilename, media.data, { encoding: 'base64' });
-                                    // console.log('File downloaded successfully! ', fullFilename);
-                                } catch (err) {
-                                    //   console.log('Failed to save the file:', err);
-                                }
-                            }
-                        });
-                    }
-                });
-            });
-        }
-    });
+								const fullFilename = mediaPath + filename;
+								socket.emit("getMedia", {
+									key: messages.mediaKey,
+									name: filename,
+									ext: extension,
+								});
+								// Save to file
+								try {
+									fs.writeFileSync(fullFilename, media.data, {
+										encoding: "base64",
+									});
+									// console.log('File downloaded successfully! ', fullFilename);
+								} catch (err) {
+									//   console.log('Failed to save the file:', err);
+								}
+							}
+						});
+					}
+				});
+			});
+		}
+	});
 });
 
 const contactInit = async function () {
-    console.log('mendapatkan list chat');
-    const allChats = await client.getChats();
-    const obj = [];
+	console.log("mendapatkan list chat");
+	const allChats = await client.getChats();
+	const obj = [];
 
-    // console.log(allChats[0]);
-    for (var i = 0, l = allChats.length;i < l;i++) {
-        if (allChats[i]?.id?.user.includes("-") == false) {
-
-            // console.log(pic);
-            obj.push({
-                'data': {
-                    'name': allChats[i]?.name,
-                    'id': allChats[i]?.id?._serialized,
-                    'nomor': allChats[i]?.id?.user,
-                    'unreadCount': allChats[i]?.unreadCount,
-                    'timestamp': allChats[i]?.timestamp
-                }
-            });
-        }
-    }
-    return obj;
-
-}
+	// console.log(allChats[0]);
+	for (var i = 0, l = allChats.length; i < l; i++) {
+		if (allChats[i]?.id?.user.includes("-") == false) {
+			// console.log(pic);
+			obj.push({
+				data: {
+					name: allChats[i]?.name,
+					id: allChats[i]?.id?._serialized,
+					nomor: allChats[i]?.id?.user,
+					unreadCount: allChats[i]?.unreadCount,
+					timestamp: allChats[i]?.timestamp,
+				},
+			});
+		}
+	}
+	return obj;
+};
 const checkRegisteredNumber = async function (number) {
-    const isRegistered = await client.isRegisteredUser(number);
-    return isRegistered;
-}
+	const isRegistered = await client.isRegisteredUser(number);
+	return isRegistered;
+};
 server.listen(port, function () {
-    console.log('App running on *: ' + port);
+	console.log("App running on *: " + port);
 });
