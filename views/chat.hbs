@@ -1,6 +1,6 @@
 <div class="d-flex">
 	<button
-		class="btn shadow-sm btn-sm"
+		class="btn shadow-sm btn-sm get-qr"
 		data-bs-toggle="modal"
 		data-bs-target="#qrcode"
 	><box-icon name="qr"></box-icon> QR Code</button>
@@ -29,9 +29,7 @@
 				></button>
 			</div>
 			<div class="modal-body">
-				<div>
-
-				</div>
+				<img id="qrcode" src="" alt="qrcode" />
 			</div>
 			<div class="modal-footer">
 				<button
@@ -47,4 +45,4 @@
 	src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"
 	crossorigin="anonymous"
 ></script>
-{{! <script src="/js/chat.js" crossorigin="anonymous"></script> }}
+<script src="/js/chat.js" crossorigin="anonymous"></script>

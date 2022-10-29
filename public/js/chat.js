@@ -1,10 +1,3 @@
-let Scrollbar = window.Scrollbar;
-var options = {
-	alwaysShowTracks: true,
-};
-
-Scrollbar.init(document.querySelector(".area-kontak"));
-
 (function ($) {
 	$(document).ready(function () {
 		const socket = io();
@@ -27,6 +20,10 @@ Scrollbar.init(document.querySelector(".area-kontak"));
 				$(".kirim-chat").submit();
 				e.preventDefault();
 			}
+		});
+		$(document).on("click", ".get-qr", function () {
+			socket.emit("getQr", "request new QR");
+			console.log("get qr");
 		});
 		$(document).on("click", ".list-contact", function () {
 			$(".list-contact").removeClass("active");
