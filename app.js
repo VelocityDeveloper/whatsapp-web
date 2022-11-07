@@ -168,12 +168,11 @@ io.on("connection", function (socket) {
 			socket.emit("message", "QR Code received, scan please!");
 		});
 	});
-	
+
 	socket.on("getQr", async () => {
 		let qr = await new Promise((resolve, reject) => {
 			client.on("qr", (qr) => resolve(qr));
 		});
-		res.send(qr);
 	});
 
 	client.on("authenticated", () => {

@@ -22,8 +22,10 @@
 			}
 		});
 		$(document).on("click", ".get-qr", function () {
-			socket.emit("getQr", "request new QR");
-			console.log("get qr");
+			let localQr = localStorage.getItem("qrcode");
+			$("#qrcode").attr("src", localQr);
+			// socket.emit("getQr", "request new QR");
+			// console.log("get qr");
 		});
 		$(document).on("click", ".list-contact", function () {
 			$(".list-contact").removeClass("active");
@@ -252,6 +254,7 @@
 		});
 
 		socket.on("qr", function (src) {
+			localStorage.setItem("qrcode", src);
 			$("#qrcode").attr("src", src);
 			$("#qrcode").show();
 		});

@@ -124,6 +124,10 @@ a {
 .height-100 {
 	height: 100vh;
 }
+#qrcode {
+	width: 100%;
+	height: auto;
+}
 @media screen and (min-width: 768px) {
 	body {
 		margin: calc(var(--header-height) + 1rem) 0 0 0;
