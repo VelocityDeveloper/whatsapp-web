@@ -85,6 +85,63 @@
 			$(".logs").prepend($('<li class="list-group-item">').text(msg));
 		});
 
+		socket.on("getchatbyid", async function (msg) {
+			if (typeof client.info?.wid !== "undefined") {
+				const number = phoneNumberFormatter(msg);
+
+				const chat = await client.getChatById(number);
+
+				chat.fetchMessages({ limit: 1000 }).then((messages) => {
+					// socket.emit('log', 'getchatbyid diterima server');
+					// console.log('mendapatkan chat dari nomor'+number);
+					messages.forEach((messages) => {
+						socket.emit("getChatByNumber", messages);
+						if (messages.hasMedia) {
+							messages.downloadMedia().then((media) => {
+								// To better understanding
+								// Please look at the console what data we get
+								// console.log(messages);
+
+								if (media) {
+									// The folder to store: change as you want!
+									// Create if not exists
+									const mediaPath = "./public/download/";
+
+									if (!fs.existsSync(mediaPath)) {
+										fs.mkdirSync(mediaPath, { recursive: true }, (err) => {});
+									}
+
+									// Get the file extension by mime-type
+									const extension = mime.extension(media.mimetype);
+
+									// Filename: change as you want!
+									// I will use the time for this example
+									// Why not use messages.filename? Because the value is not certain exists
+									const filename = messages.timestamp + "." + extension;
+
+									const fullFilename = mediaPath + filename;
+									socket.emit("getMedia", {
+										key: messages.mediaKey,
+										name: filename,
+										ext: extension,
+									});
+									// Save to file
+									try {
+										fs.writeFileSync(fullFilename, media.data, {
+											encoding: "base64",
+										});
+										// console.log('File downloaded successfully! ', fullFilename);
+									} catch (err) {
+										//   console.log('Failed to save the file:', err);
+									}
+								}
+							});
+						}
+					});
+				});
+			}
+		});
+
 		socket.on("getPicUrl", function (msg) {
 			if (msg.url) {
 				$(`[data-user='` + msg.data + `']`).attr("src", msg.url);
@@ -138,6 +195,7 @@
 		});
 
 		socket.on("getContact", function (data) {
+			console.log(data);
 			if (data) {
 				$(".chat").html("");
 				const dataListChat = data.sort();
@@ -203,7 +261,7 @@
 
 					$(".chat").append(
 						$(
-							'<li class="text-white bg-dark list-contact list-' +
+							'<li class="list-contact list-' +
 								dataContact.nomor +
 								" " +
 								dataContact.name.toLowerCase() +
@@ -265,6 +323,10 @@
 
 		socket.on("authenticated", function (data) {
 			$("#qrcode").hide();
+			$(".status-login").html(`
+			<div class="alert alert-success" role="alert">
+				Login Berhasil!
+			</div>`);
 		});
 		socket.on("log", function (data) {
 			console.log(data);

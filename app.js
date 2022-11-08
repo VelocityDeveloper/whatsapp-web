@@ -157,21 +157,11 @@ client.on("message", (msg) => {
 
 // Socket IO
 io.on("connection", function (socket) {
-	socket.emit("message", "Menghububugkan...");
-	// const allChats = client.getChats();
-	// socket.emit('getContact', client.getChats());
-
 	client.on("qr", (qr) => {
 		console.log("QR RECEIVED", qr);
 		qrcode.toDataURL(qr, (err, url) => {
 			socket.emit("qr", url);
 			socket.emit("message", "QR Code received, scan please!");
-		});
-	});
-
-	socket.on("getQr", async () => {
-		let qr = await new Promise((resolve, reject) => {
-			client.on("qr", (qr) => resolve(qr));
 		});
 	});
 
@@ -195,8 +185,70 @@ io.on("connection", function (socket) {
 	client.on("ready", async function () {
 		console.log("client ready");
 	});
+
+	socket.emit("message", "Menghububugkan...");
+
+	if (typeof client.info?.wid !== "undefined") {
+		let getContactList = async function () {
+			let isChatIn = await contactInit();
+			socket.emit("getContact", isChatIn);
+			console.log("sent contact to frontend");
+		};
+		getContactList;
+	} else {
+		socket.emit("getContact", "Client belum siap!");
+		console.log("Client belum siap!");
+	}
+
+	socket.on("getQr", async () => {
+		let qr = await new Promise((resolve, reject) => {
+			client.on("qr", (qr) => resolve(qr));
+		});
+	});
+
+	socket.on("updateDataContact", async function (msg) {
+		if (typeof client.info?.wid !== "undefined") {
+			let isChatIn = await contactInit();
+			socket.emit("getContact", isChatIn);
+			console.log("sinkronkan kontak karena chat masuk");
+			console.log(msg);
+		} else {
+			socket.emit("getContact", "Client belum siap!");
+			console.log("Client belum siap!");
+		}
+	});
+	socket.on("reqPicUrl", async function (data) {
+		// socket.emit('log', client);
+		if (typeof client.info?.wid !== "undefined") {
+			let pic = await client.getProfilePicUrl(data);
+			socket.emit("getPicUrl", { data: data, url: pic });
+		}
+	});
 });
 
 server.listen(port, function () {
 	console.log("App running on *: " + port);
 });
+
+const contactInit = async function () {
+	console.log("mendapatkan list chat");
+	const allChats = await client.getChats();
+	const obj = [];
+
+	// console.log(allChats[0]);
+	for (var i = 0, l = allChats.length; i < l; i++) {
+		if (allChats[i]?.id?.user.includes("-") == false) {
+			// console.log(pic);
+			obj.push({
+				data: {
+					name: allChats[i]?.name,
+					id: allChats[i]?.id?._serialized,
+					nomor: allChats[i]?.id?.user,
+					unreadCount: allChats[i]?.unreadCount,
+					timestamp: allChats[i]?.timestamp,
+				},
+			});
+		}
+	}
+	return obj;
+};
